@@ -223,7 +223,7 @@ def _build_sentence_from_lookup(tokens: List[str], direction: str) -> str:
 
         candidates = info["candidates"][:4]
         if candidates:
-            sentence = " / ".join(candidates)
+            sentence = ", ".join(candidates)
             if sentence:
                 sentence = sentence[0].upper() + sentence[1:]
             return sentence
