@@ -24,8 +24,12 @@ class EmakuaResources:
     lexicon: Dict[str, Any]
 
 
-# TTL (em segundos) configurável via variável de ambiente
-_CACHE_TTL_SECONDS: int = int(os.environ.get("EMAKUA_CACHE_TTL_SECONDS", "60"))
+# TTL (em segundos) configurável via variável de ambiente.
+#
+# Por padrão usamos 0 para garantir que **toda** requisição consulte
+# diretamente o Supabase, sem reutilizar dados em cache.
+# Se quiser habilitar cache, defina EMAKUA_CACHE_TTL_SECONDS>0.
+_CACHE_TTL_SECONDS: int = int(os.environ.get("EMAKUA_CACHE_TTL_SECONDS", "0"))
 
 # Cache em memória separado por recurso: nome -> (timestamp, dados)
 _resource_cache: Dict[str, Tuple[float, Dict[str, Any]]] = {}
@@ -48,6 +52,10 @@ def _fetch_resource(name: str) -> Dict[str, Any]:
 
 def _get_with_ttl(name: str) -> Dict[str, Any]:
     """Retorna o recurso do cache em memória com TTL ou recarrega do Supabase."""
+
+    # Se TTL <= 0, desabilita completamente o cache: sempre consulta Supabase.
+    if _CACHE_TTL_SECONDS <= 0:
+        return _fetch_resource(name)
 
     now = time.time()
     cached = _resource_cache.get(name)
