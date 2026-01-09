@@ -33,7 +33,6 @@ _resource_cache: Dict[str, Tuple[float, Dict[str, Any]]] = {}
 
 def _fetch_resource(name: str) -> Dict[str, Any]:
     """Busca o JSON bruto no Supabase, sem cache."""
-
     resp = (
         _client
         .table(TABLE_NAME)

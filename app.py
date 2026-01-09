@@ -15,7 +15,6 @@ def add_no_cache_headers(response):
     response.headers["Expires"] = "0"
     return response
 
-
 @app.route("/health", methods=["GET"])
 def health():
     return jsonify({"status": "ok"})
