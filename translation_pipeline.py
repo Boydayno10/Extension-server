@@ -57,6 +57,10 @@ def _build_indexes(resources: EmakuaResources) -> Tuple[
 
     # léxico
     for pt_word, vals in raw_lexicon.items():
+        if isinstance(vals, str):
+            vals = [vals]
+        elif not isinstance(vals, list):
+            continue
         norm_pt = _normalize_pt(pt_word)
         if norm_pt not in spell_vocab_pt:
             spell_vocab_pt[norm_pt] = pt_word

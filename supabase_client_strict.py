@@ -72,7 +72,37 @@ def _get_with_ttl(name: str) -> Dict[str, Any]:
 def get_pt_emakua_lexicon() -> Dict[str, Any]:
     """Retorna o léxico pt_emakua_lexicon com cache em memória e TTL."""
 
-    return _get_with_ttl("pt_emakua_lexicon.json")
+    raw = _get_with_ttl("pt_emakua_lexicon.json")
+    if not isinstance(raw, dict):
+        raise RuntimeError("Léxico inválido (metadata não é um objeto).")
+
+    # Normalize values to List[str].
+    # This keeps the translation pipeline stable even if some entries were
+    # saved as a single string.
+    normalized: Dict[str, Any] = {}
+    for k, v in raw.items():
+        if not isinstance(k, str) or not k.strip():
+            continue
+
+        if isinstance(v, str):
+            s = v.strip()
+            if s:
+                normalized[k] = [s]
+            continue
+
+        if isinstance(v, list):
+            cleaned = [
+                item.strip()
+                for item in v
+                if isinstance(item, str) and item.strip()
+            ]
+            if cleaned:
+                normalized[k] = cleaned
+            continue
+
+        # Ignore other types (numbers/objects) to avoid corrupting indexes.
+
+    return normalized
 
 
 def get_emakua_grammar() -> Dict[str, Any]:
